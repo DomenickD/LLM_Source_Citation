@@ -1,0 +1,8 @@
+# Break up into multipl files FIXME
+# APA citation FIXME
+# Look for Agents in Langchain FIXME
+# Source/ Citation - print out the chunk
+# Find an agent FIXME
+# Focus on PDFs FIXME
+# # Intext citation FIXME
+# Use wget function to download the model FIXME
