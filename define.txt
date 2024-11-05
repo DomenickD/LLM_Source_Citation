@@ -1,0 +1,2 @@
+This will be the ollama version of the project. 
+The goal is minimal AI assistance, smaller package, and stable feature additions.
