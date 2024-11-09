@@ -1,4 +1,5 @@
-# utils.py
+"""Utility functiosn to support app"""
+
 import os
 import pickle
 from langchain_community.document_loaders import DirectoryLoader, PyMuPDFLoader
@@ -50,3 +51,13 @@ def get_context_for_question(vector_store, question, k=5):
     context = "\n\n".join([doc.page_content for doc in docs])
     source_info = ", ".join(set(doc.metadata["source"] for doc in docs))
     return context, source_info
+
+
+def is_document_related(query):
+    """
+    Simple check to determine if a query is document-related.
+    Returns True if the query is likely document-related, False otherwise.
+    You can make this more sophisticated with a custom classifier.
+    """
+    keywords = ["tell me about", "who", "what", "when", "where", "describe", "explain"]
+    return any(keyword in query.lower() for keyword in keywords)
