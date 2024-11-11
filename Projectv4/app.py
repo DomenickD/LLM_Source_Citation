@@ -18,9 +18,9 @@ from utils import (
 VECTORSTORE_PATH = "./vectorstore/faiss_index.pkl"
 DATA_FOLDER = "./data"
 
-# Ensure data folder exists
-if not os.path.exists(DATA_FOLDER):
-    os.makedirs(DATA_FOLDER)
+# # Ensure data folder exists
+# if not os.path.exists(DATA_FOLDER):
+#     os.makedirs(DATA_FOLDER)
 
 # Check if vector store exists
 if not os.path.exists(VECTORSTORE_PATH):
