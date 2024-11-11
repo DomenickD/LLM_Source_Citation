@@ -1,0 +1,24 @@
+Retrieval-Augmented Generation (RAG) has been shown to improve knowledge
+capabilities and alleviate the hallucination problem of LLMs. The Web is a
+major source of external knowledge used in RAG systems, and many commercial
+systems such as ChatGPT and Perplexity have used Web search engines as their
+major retrieval systems. Typically, such RAG systems retrieve search results,
+download HTML sources of the results, and then extract plain texts from the
+HTML sources. Plain text documents or chunks are fed into the LLMs to augment
+the generation. However, much of the structural and semantic information
+inherent in HTML, such as headings and table structures, is lost during this
+plain-text-based RAG process. To alleviate this problem, we propose HtmlRAG,
+which uses HTML instead of plain text as the format of retrieved knowledge in
+RAG. We believe HTML is better than plain text in modeling knowledge in
+external documents, and most LLMs possess robust capacities to understand HTML.
+However, utilizing HTML presents new challenges. HTML contains additional
+content such as tags, JavaScript, and CSS specifications, which bring extra
+input tokens and noise to the RAG system. To address this issue, we propose
+HTML cleaning, compression, and pruning strategies, to shorten the HTML while
+minimizing the loss of information. Specifically, we design a two-step
+block-tree-based pruning method that prunes useless HTML blocks and keeps only
+the relevant part of the HTML. Experiments on six QA datasets confirm the
+superiority of using HTML in RAG systems. HTML contains a lot of intrinsic information, so we propose taking HTML as the format of retrieved knowledge in RAG systems, and design HTML cleaning and block-tree-based HTML pruning to shorten the length and preserve information. This is pretty much applying graph-rag to a processed html document (with extra steps) right? In fact, HtmlRAG has nothing to do with Graph RAG😂. The tree structure in HtmlRAG originates from the HTML format, while the graph in graph RAG is extrated from plain-text documents using an LLM. There is almost no intersection between them. I hope this explanation could solve your concern🤗. I faced similar challange to extract HTML data from website, i used Markdown format and it works really well. but i will try this for sure.  Pretty cool! I'll try it out.  Did you consider keeping the "context path" for the fine-grained blocks?  See e.g. https://www.anthropic.com/news/contextual-retrieval for an elaborate version of this -- the first mention I remember was from 2022 or 2023 and simply added a document's title to the chunk prior to embedding, to great improvement in relevance.  In your case you could add the document title and any parent heading/subheading elements prior to the chunk? See https://claude.site/artifacts/14ba4b9a-94da-4ea2-905c-ba300be872b5 for a visual Great suggestion👍! Actually, for each block, there are many additional features waiting to be explored, such as tag attributes, url links, and context path you have mentioned. We can probably optimize the block represention strategy in future works. No mention in this article of Markdown? I always do my RAG training in Markdown. We compare HtmlRAG and rule-based HTML2Markdown converter markdownify in Table 2. In our experiment, for Llama chat model, Markdown format is not as good as plain text or HTML. If your chat model is specially fine-tuned with Markdown, you may apply our HTML cleaning and pruning algorithm, and convert the final pruned HTML to Markdown. The best format for an LLM is very specific to llm itself right?GPT* favors markdown, claude favors xml, ... Also, did you also compare with contextual chunking as someone above also mentioned something similar?i.e., say the format is markdown, and chunked semantically or section wise, or arbitrary chunking strategy, combined with adding proper context into the chunk: (using approach Anthropic says contextual retrieval) Thanks for your suggestion!  For your first concern, our claim for HTML is based on the knowledge source in RAG systems. We assume that as a component in the RAG system, the LLMs' favours can be adjusted by the data format in the instruction tuning stage. It would be a better practice if all components here are designed for the HTML knowledge source. For your second concern, we compare HtmlRAG with chunking parctice in Langchain in our paper. We are talking about an RAG system whose knowledge source is basically in HTML format. Those fancy chunking strategies are based on the HTML-to-plain-text conversion. If information loss is mainly brought by the conversion other than the chunking strategy, different chunking strategies may have little difference. I hope my explanation helps🤗. ·
+Sign up or
+					log in to comment
+				 No dataset linking this paper No Space linking this paper

@@ -1,10 +1,9 @@
-# train_model.py
+"""Run first to train model but keep here to update model"""
+
 import os
 import pickle
 from langchain_community.vectorstores import FAISS
 from langchain_huggingface import HuggingFaceEmbeddings
-from langchain_community.document_loaders import DirectoryLoader
-from langchain.text_splitter import RecursiveCharacterTextSplitter
 from utils import load_and_split_documents
 
 # Initialize embeddings

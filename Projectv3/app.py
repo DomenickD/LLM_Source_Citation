@@ -10,15 +10,28 @@ from utils import load_vector_store, get_context_for_question, is_document_relat
 # Load precomputed vector store
 vector_store = load_vector_store()
 
-# Initialize model
-llm = ChatOllama(model="llama3.1", temperature=0.2)
 
 # Streamlit UI setup
 st.title("RAG-Powered Document Query Chatbot")
 st.write("Ask questions about the content in the text files in the 'data' folder.")
 
-# Toggle to switch between document-based and conversational responses
-use_vector_store = st.checkbox("Use document knowledge base", value=True)
+
+# Settings section with st.expander
+with st.expander("Model Settings"):
+    # Slider to set model temperature
+    TEMPERATURE = st.slider(
+        "Set model temperature", min_value=0.0, max_value=1.0, value=0.2, step=0.1
+    )
+
+    # Checkbox to toggle document-based responses
+    use_vector_store = st.checkbox(
+        "Use document knowledge base (Select to summarize trained text)", value=True
+    )
+# # Toggle to switch between document-based and conversational responses
+# use_vector_store = st.checkbox("Use document knowledge base", value=True)
+
+# Initialize model
+llm = ChatOllama(model="llama3.1", temperature=TEMPERATURE)
 
 # Set up session state for message history
 if "message_history" not in st.session_state:
