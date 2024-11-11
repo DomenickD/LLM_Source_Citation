@@ -22,24 +22,24 @@ DATA_FOLDER = "./data"
 # if not os.path.exists(DATA_FOLDER):
 #     os.makedirs(DATA_FOLDER)
 
-# Check if vector store exists
-if not os.path.exists(VECTORSTORE_PATH):
-    # Load and split documents from the data folder
-    documents = load_and_split_documents(DATA_FOLDER)
+# # Check if vector store exists
+# if not os.path.exists(VECTORSTORE_PATH):
+#     # Load and split documents from the data folder
+#     documents = load_and_split_documents(DATA_FOLDER)
 
-    # Initialize embeddings and create vector store
-    embeddings = HuggingFaceEmbeddings(
-        model_name="sentence-transformers/all-MiniLM-L6-v2"
-    )
-    vector_store = FAISS.from_documents(documents, embeddings)
+#     # Initialize embeddings and create vector store
+#     embeddings = HuggingFaceEmbeddings(
+#         model_name="sentence-transformers/all-MiniLM-L6-v2"
+#     )
+#     vector_store = FAISS.from_documents(documents, embeddings)
 
-    # Save vector store to disk
-    os.makedirs("vectorstore", exist_ok=True)
-    with open(VECTORSTORE_PATH, "wb") as f:
-        pickle.dump(vector_store, f)
-else:
-    # Load the existing vector store
-    vector_store = load_vector_store(VECTORSTORE_PATH)
+#     # Save vector store to disk
+#     os.makedirs("vectorstore", exist_ok=True)
+#     with open(VECTORSTORE_PATH, "wb") as f:
+#         pickle.dump(vector_store, f)
+# else:
+#     # Load the existing vector store
+vector_store = load_vector_store()
 
 # Load keywords from data folder
 keywords = get_keywords_from_data_folder()
