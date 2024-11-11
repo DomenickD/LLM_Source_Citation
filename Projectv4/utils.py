@@ -18,6 +18,10 @@ def load_and_split_documents(data_folder, chunk_size=500, chunk_overlap=100):
     """
     documents = []
 
+    # Ensure the data folder exists (FOR STREAMLIT CLOUD)
+    if not os.path.exists(data_folder):
+        return documents
+
     # Load text files
     text_loader = DirectoryLoader(data_folder, glob="*.txt")
     text_splitter = RecursiveCharacterTextSplitter(
