@@ -7,9 +7,25 @@ from langchain_community.document_loaders import DirectoryLoader, PyMuPDFLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_ollama import ChatOllama
-from datetime import datetime
+
+# from datetime import datetime
 import requests
-from bs4 import BeautifulSoup
+
+# from bs4 import BeautifulSoup
+
+VECTORSTORE_PATH = "./vectorstore/faiss_index.pkl"
+GOOGLE_DRIVE_FILE_ID = "1z3m26WPdWHerhRXDK6_0pv5bC6YKKsVW"  # File ID only
+GOOGLE_DRIVE_DOWNLOAD_URL = f"https://drive.google.com/uc?id={GOOGLE_DRIVE_FILE_ID}"
+
+
+def download_vector_store():
+    os.makedirs("vectorstore", exist_ok=True)
+    with requests.get(GOOGLE_DRIVE_DOWNLOAD_URL, stream=True) as response:
+        response.raise_for_status()
+        with open(VECTORSTORE_PATH, "wb") as f:
+            for chunk in response.iter_content(chunk_size=8192):
+                f.write(chunk)
+    # st.write("Downloaded vector store from Google Drive.")
 
 
 def load_and_split_documents(data_folder, chunk_size=500, chunk_overlap=100):

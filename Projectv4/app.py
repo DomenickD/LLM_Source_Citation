@@ -1,45 +1,30 @@
 import os
-import pickle
+
+# import pickle
 import streamlit as st
 from langchain_ollama import ChatOllama
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
-from langchain_community.vectorstores import FAISS
-from langchain_huggingface import HuggingFaceEmbeddings
 from utils import (
     load_vector_store,
     retrieve_from_vector_store,
     conversational_response,
     get_keywords_from_data_folder,
     generate_apa_citation,
-    load_and_split_documents,
+    download_vector_store,
 )
 
 # Set paths
 VECTORSTORE_PATH = "./vectorstore/faiss_index.pkl"
 DATA_FOLDER = "./data"
 
-# # Ensure data folder exists
-# if not os.path.exists(DATA_FOLDER):
-#     os.makedirs(DATA_FOLDER)
 
-# # Check if vector store exists
-# if not os.path.exists(VECTORSTORE_PATH):
-#     # Load and split documents from the data folder
-#     documents = load_and_split_documents(DATA_FOLDER)
+# Check if vector store exists
+if not os.path.exists(VECTORSTORE_PATH):
+    st.write("Vector store missing, downloading from Google Drive...")
+    download_vector_store()
 
-#     # Initialize embeddings and create vector store
-#     embeddings = HuggingFaceEmbeddings(
-#         model_name="sentence-transformers/all-MiniLM-L6-v2"
-#     )
-#     vector_store = FAISS.from_documents(documents, embeddings)
-
-#     # Save vector store to disk
-#     os.makedirs("vectorstore", exist_ok=True)
-#     with open(VECTORSTORE_PATH, "wb") as f:
-#         pickle.dump(vector_store, f)
-# else:
-#     # Load the existing vector store
-vector_store = load_vector_store()
+# Load the vector store
+vector_store = load_vector_store(VECTORSTORE_PATH)
 
 # Load keywords from data folder
 keywords = get_keywords_from_data_folder()
