@@ -18,6 +18,9 @@ import os
 import requests
 from bs4 import BeautifulSoup
 from datetime import datetime
+from vector_store import create_and_save_vector_store
+from document_processor import load_and_split_documents
+from embeddings import get_embeddings
 
 
 def scrape_webpage(url, output_folder="./data"):
@@ -59,6 +62,14 @@ def scrape_webpage(url, output_folder="./data"):
         file.write(text_content)
 
     print(f"Webpage content saved to {filename}")
+
+    # Update vector store with the new document
+    print("Updating the vector store...")
+    documents = load_and_split_documents(output_folder)
+    embeddings = get_embeddings()
+    create_and_save_vector_store(documents, embeddings)
+    print("Vector store updated successfully!")
+
     return filename
 
 

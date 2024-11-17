@@ -6,3 +6,6 @@
 # Focus on PDFs 
 # # Intext citation FIXME
 # Use wget function to download the model FIXME
+
+switch to openAI so it can run on streamlit FIXME
+Modulaize code so run file is under 20 lines FIXME

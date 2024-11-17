@@ -20,6 +20,7 @@ import streamlit as st
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
 from langchain_core.prompts import ChatPromptTemplate
 from document_processor import get_context_for_question
+from utils import scrape_webpage
 
 
 def initialize_ui():
@@ -32,10 +33,29 @@ def initialize_ui():
     st.title("RAG-Powered Document Query Chatbot")
     st.write("Ask questions about the content in the text files in the 'data' folder.")
 
-    with st.expander("Model Settings"):
-        temperature = st.slider("Set model temperature", 0.0, 1.0, 0.2, 0.1)
+    # Sidebar: Model Settings
+    st.sidebar.header("Model Settings")
+    temperature = st.sidebar.slider(
+        "Set model temperature", min_value=0.0, max_value=1.0, value=0.2, step=0.1
+    )
 
-    return temperature
+    # Sidebar: Web Scraping Form
+    st.sidebar.header("Scrape a Website")
+    with st.sidebar.form(key="scrape_form"):
+        url_to_scrape = st.text_input("Enter a website URL:")
+        scrape_button = st.form_submit_button("Scrape Website")
+
+    scrape_message = None
+    if scrape_button and url_to_scrape:
+        try:
+            scraped_file = scrape_webpage(url_to_scrape, output_folder="./data")
+            scrape_message = f"Webpage content saved as: {scraped_file}"
+            st.sidebar.success(scrape_message)
+        except Exception as e:
+            scrape_message = f"Failed to scrape the website: {e}"
+            st.sidebar.error(scrape_message)
+
+    return temperature, scrape_message
 
 
 def initialize_model(temperature):
