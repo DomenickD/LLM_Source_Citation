@@ -4,5 +4,11 @@ Projectv3
 testing_space.ipynb
 Projectv3\vectorstore
 require.py
-Projectv5/vectorstore
+Projectv5/vectorstore/faiss_index.pkl
 todo.txt
+
+Projectv*/vectorstore/ 
+__pycache__/  # Python bytecode cache
+*.pyc         # Compiled Python files
+.DS_Store     # macOS system files
+data/*.csv    # Example: Ignore CSV files within the 'data' directory (adjust as needed)
