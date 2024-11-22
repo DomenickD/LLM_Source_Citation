@@ -4,7 +4,7 @@ To Run:
 1. Install the required libraries by running `pip install -r requirements.txt` in your terminal.
 
 2. Switch to project directory:
-```cd Projectv3```
+```cd Projectv5```
 
 3. Train the model on teh training data with:
 ```train_model.py```
