@@ -21,12 +21,12 @@ CHROMA_DB_DIR = "./chroma_db"
 # === Utility Functions ===
 
 
-def initialize_chroma_vector_store(persist_directory=CHROMA_DB_DIR):
+def initialize_chroma_vector_store(persist_directory=None):
     """
-    Initialize a Chroma vector store.
+    Initialize a Chroma vector store without persistence to avoid SQLite dependency.
 
     Args:
-        persist_directory (str): Directory to persist Chroma vector store data.
+        persist_directory (str, optional): Directory to persist Chroma vector store data. Defaults to None.
 
     Returns:
         Chroma: The initialized Chroma vector store.
@@ -34,9 +34,9 @@ def initialize_chroma_vector_store(persist_directory=CHROMA_DB_DIR):
     # Initialize embeddings
     embeddings = get_embeddings()
 
-    # Initialize the Chroma vector store
-    store = Chroma(persist_directory=persist_directory, embedding_function=embeddings)
-    print(f"Chroma vector store initialized at: {persist_directory}")
+    # Initialize Chroma with in-memory configuration
+    store = Chroma(persist_directory=None, embedding_function=embeddings)
+    print("Chroma vector store initialized in memory.")
     return store
 
 
