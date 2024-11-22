@@ -11,12 +11,9 @@ Modules:
 3. Example Usage
 """
 
-import os
 from langchain_chroma import Chroma  # Updated import
 from embeddings import get_embeddings  # Importing custom embeddings utility
 
-# Directory to persist Chroma data
-CHROMA_DB_DIR = "./chroma_db"
 
 # === Utility Functions ===
 
@@ -25,41 +22,34 @@ def initialize_chroma_vector_store():
     """
     Initialize a Chroma vector store without persistence to avoid SQLite dependency.
 
-    Args:
-        persist_directory (str, optional): Directory to persist Chroma vector store data. Defaults to None.
-
     Returns:
         Chroma: The initialized Chroma vector store.
     """
     # Initialize embeddings
     embeddings = get_embeddings()
 
-    # Initialize Chroma with in-memory configuration
+    # Initialize Chroma in memory (no persistence)
     store = Chroma(embedding_function=embeddings)
     print("Chroma vector store initialized in memory.")
     return store
 
 
-def create_chroma_vector_store(docs, persist_directory=CHROMA_DB_DIR):
+def create_chroma_vector_store(docs):
     """
-    Create a Chroma vector store from documents and embeddings.
+    Create a Chroma vector store from documents without persistence.
 
     Args:
         docs (list): List of documents to index in the vector store.
-        persist_directory (str): Directory to persist Chroma vector store data.
 
     Returns:
         Chroma: The created Chroma vector store.
     """
-    # Ensure the persistence directory exists
-    os.makedirs(persist_directory, exist_ok=True)
-
     # Initialize the HuggingFace embeddings
     embeddings = get_embeddings()
 
-    # Create and persist the Chroma vector store
-    store = Chroma.from_documents(docs, embeddings, persist_directory=persist_directory)
-    print(f"Chroma vector store saved to: {persist_directory}")
+    # Create the Chroma vector store (in-memory)
+    store = Chroma.from_documents(docs, embeddings)
+    print("Chroma vector store created in memory.")
     return store
 
 
@@ -90,13 +80,10 @@ if __name__ == "__main__":
         {"content": "To be or not to be, that is the question."},
     ]
 
-    # 1. Create and persist the vector store
+    # 1. Create the vector store (in-memory)
     example_store = create_chroma_vector_store(example_documents)
 
-    # 2. Load the vector store for querying
-    example_store = initialize_chroma_vector_store()
-
-    # 3. Perform a query
+    # 2. Perform a query
     example_query = "What is the meaning of life?"
     example_results = query_chroma_vector_store(example_store, example_query)
 
