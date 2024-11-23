@@ -15,6 +15,7 @@ Use `create_and_save_vector_store` to build a new vector store and save it for l
 """
 
 import os
+import subprocess
 import pickle
 from langchain_community.vectorstores import FAISS
 
@@ -33,7 +34,14 @@ def load_local_vector_store():
         FileNotFoundError: If the vector store file does not exist.
     """
     if not os.path.exists(VECTOR_STORE_PATH):
-        raise FileNotFoundError("Vector store not found. Please train the model first.")
+        print("Vector store not found. Running train_model.py to create it.")
+        try:
+            # Run the train_model.py script
+            subprocess.run(["python", "train_model.py"], check=True)
+        except subprocess.CalledProcessError as e:
+            raise RuntimeError(
+                "Failed to train the model and create the vector store."
+            ) from e
 
     with open(VECTOR_STORE_PATH, "rb") as file:
         vector_store = pickle.load(file)

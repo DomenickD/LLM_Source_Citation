@@ -25,6 +25,40 @@ from langchain_community.document_loaders import DirectoryLoader, PyMuPDFLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 
 
+# def load_and_split_documents(data_folder, chunk_size=500, chunk_overlap=100):
+#     """
+#     Load and split text and PDF documents from a folder into manageable chunks.
+
+#     Args:
+#         data_folder (str): The path to the folder containing documents.
+#         chunk_size (int, optional): The size of each text chunk. Defaults to 500.
+#         chunk_overlap (int, optional): The overlap between consecutive chunks. Defaults to 100.
+
+#     Returns:
+#         list: A list of document chunks, where each chunk is a dictionary containing the content and metadata.
+#     """
+#     documents = []
+
+#     # Load and split text files
+#     text_loader = DirectoryLoader(data_folder, glob="*.txt")
+#     text_splitter = RecursiveCharacterTextSplitter(
+#         chunk_size=chunk_size, chunk_overlap=chunk_overlap
+#     )
+#     documents.extend(text_loader.load_and_split(text_splitter=text_splitter))
+
+#     # Load and split PDF files
+#     for filename in os.listdir(data_folder):
+#         if filename.endswith(".pdf"):
+#             file_path = os.path.join(data_folder, filename)
+#             pdf_loader = PyMuPDFLoader(file_path)
+#             pdf_documents = pdf_loader.load_and_split(text_splitter=text_splitter)
+#             for doc in pdf_documents:
+#                 doc.metadata["source"] = filename  # Add source metadata
+#             documents.extend(pdf_documents)
+
+#     return documents
+
+
 def load_and_split_documents(data_folder, chunk_size=500, chunk_overlap=100):
     """
     Load and split text and PDF documents from a folder into manageable chunks.
@@ -38,24 +72,23 @@ def load_and_split_documents(data_folder, chunk_size=500, chunk_overlap=100):
         list: A list of document chunks, where each chunk is a dictionary containing the content and metadata.
     """
     documents = []
-
-    # Load and split text files
-    text_loader = DirectoryLoader(data_folder, glob="*.txt")
     text_splitter = RecursiveCharacterTextSplitter(
         chunk_size=chunk_size, chunk_overlap=chunk_overlap
     )
-    documents.extend(text_loader.load_and_split(text_splitter=text_splitter))
 
-    # Load and split PDF files
-    for filename in os.listdir(data_folder):
-        if filename.endswith(".pdf"):
-            file_path = os.path.join(data_folder, filename)
-            pdf_loader = PyMuPDFLoader(file_path)
-            pdf_documents = pdf_loader.load_and_split(text_splitter=text_splitter)
-            for doc in pdf_documents:
-                doc.metadata["source"] = filename  # Add source metadata
-            documents.extend(pdf_documents)
-
+    # Walk through all subdirectories
+    for root, _, files in os.walk(data_folder):
+        for filename in files:
+            file_path = os.path.join(root, filename)
+            if filename.endswith(".txt"):
+                loader = DirectoryLoader(root, glob=filename)
+                documents.extend(loader.load_and_split(text_splitter=text_splitter))
+            elif filename.endswith(".pdf"):
+                pdf_loader = PyMuPDFLoader(file_path)
+                pdf_documents = pdf_loader.load_and_split(text_splitter=text_splitter)
+                for doc in pdf_documents:
+                    doc.metadata["source"] = filename
+                documents.extend(pdf_documents)
     return documents
 
 

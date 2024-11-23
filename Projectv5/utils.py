@@ -39,7 +39,7 @@ def scrape_webpage(url, output_folder="./data"):
         requests.exceptions.RequestException: If the HTTP request fails.
     """
     # Send a GET request to the provided URL
-    response = requests.get(url)
+    response = requests.get(url, timeout=15)
     response.raise_for_status()  # Raise an error for HTTP request issues
 
     # Parse the HTML content of the webpage
@@ -48,11 +48,12 @@ def scrape_webpage(url, output_folder="./data"):
     # Extract text content from all <p> tags
     text_content = " ".join([p.get_text() for p in soup.find_all("p")])
 
-    # Create a unique filename based on the URL
-    filename = os.path.join(
-        output_folder,
-        f"{url.replace('http://', '').replace('https://', '').replace('/', '_')}.txt",
-    )
+    # Create a safe and descriptive filename based on the URL
+    sanitized_url = url.replace("http://", "").replace("https://", "").replace("/", "_")
+    base_name = sanitized_url.split("?")[0].split("#")[
+        0
+    ]  # Remove query strings and fragments
+    filename = os.path.join(output_folder, f"{base_name}.txt")
 
     # Ensure the output folder exists
     os.makedirs(output_folder, exist_ok=True)

@@ -19,10 +19,10 @@ Run this script to launch the Streamlit app. The user can input queries to \
 """
 
 import streamlit as st
-from document_processor import get_keywords_from_data_folder, get_context_for_question
+from document_processor import get_keywords_from_data_folder
 from app_utils import initialize_ui, handle_user_input, initialize_model
 from vector_store import load_local_vector_store
-from utils import scrape_webpage
+
 
 # Initialize vector store
 vector_store = load_local_vector_store()
@@ -32,10 +32,10 @@ keywords = get_keywords_from_data_folder(data_folder="./data")
 
 # Initialize UI components
 # TEMPERATURE, use_vector_store = initialize_ui()
-TEMPERATURE, scrape_message = initialize_ui()
+temperature = initialize_ui()
 
 # Initialize model
-llm = initialize_model(temperature=TEMPERATURE)
+llm = initialize_model(temperature=temperature)
 
 # Inform the user about keyword-based queries
 st.write(

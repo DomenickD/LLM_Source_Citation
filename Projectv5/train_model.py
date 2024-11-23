@@ -39,7 +39,7 @@ def main():
     data_folder = "./data"
 
     # Load and split documents from the data folder
-    documents = load_and_split_documents(data_folder)
+    documents = load_and_split_documents(data_folder=data_folder)
 
     # Create and save the vector store using the documents and embeddings
     create_and_save_vector_store(documents, embeddings)

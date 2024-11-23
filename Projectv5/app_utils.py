@@ -16,6 +16,8 @@ Run the script to launch the Streamlit app. Users can query text files in the `d
 engage in general conversation with the chatbot.
 """
 
+import time
+import requests
 import streamlit as st
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
 from langchain_core.prompts import ChatPromptTemplate
@@ -45,17 +47,35 @@ def initialize_ui():
         url_to_scrape = st.text_input("Enter a website URL:")
         scrape_button = st.form_submit_button("Scrape Website")
 
-    scrape_message = None
+    # Placeholder for dynamic message display
+    message_placeholder = st.sidebar.empty()
+
+    # Handle web scraping
     if scrape_button and url_to_scrape:
         try:
             scraped_file = scrape_webpage(url_to_scrape, output_folder="./data")
-            scrape_message = f"Webpage content saved as: {scraped_file}"
-            st.sidebar.success(scrape_message)
-        except Exception as e:
-            scrape_message = f"Failed to scrape the website: {e}"
-            st.sidebar.error(scrape_message)
+            st.session_state.scrape_message = (
+                f"Scraped content saved as: {scraped_file}"
+            )
+        except requests.exceptions.RequestException as e:
+            st.session_state.scrape_message = f"Network error: {e}"
+        except ValueError as e:
+            st.session_state.scrape_message = f"Data parsing error: {e}"
 
-    return temperature, scrape_message
+        # Display the message and implement the countdown
+        start_time = time.time()
+        while time.time() - start_time < 5:
+            remaining_time = int(5 - (time.time() - start_time))
+            message_placeholder.info(
+                f"{st.session_state.scrape_message} (Closing in {remaining_time}s)"
+            )
+            time.sleep(1)  # Update every second
+
+        # Clear the message after 5 seconds
+        message_placeholder.empty()
+        del st.session_state.scrape_message
+
+    return temperature
 
 
 def initialize_model(temperature):
