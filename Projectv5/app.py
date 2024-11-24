@@ -28,7 +28,7 @@ from vector_store import load_local_vector_store
 vector_store = load_local_vector_store()
 
 # Load keywords from the data folder
-keywords = get_keywords_from_data_folder(data_folder="./data")
+keywords = get_keywords_from_data_folder(folder="./data")
 
 # Initialize UI components
 # TEMPERATURE, use_vector_store = initialize_ui()
