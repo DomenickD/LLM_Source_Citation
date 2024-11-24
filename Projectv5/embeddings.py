@@ -13,6 +13,7 @@ Call `get_embeddings` to obtain an embeddings object configured with the
 `sentence-transformers/all-MiniLM-L6-v2` model.
 """
 
+from time import sleep
 from langchain_huggingface import HuggingFaceEmbeddings
 
 
@@ -28,4 +29,16 @@ def get_embeddings():
         embeddings = get_embeddings()
         vector = embeddings.embed_query("example text")
     """
-    return HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+    # return HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+    retries = 3
+    for attempt in range(retries):
+        try:
+            return HuggingFaceEmbeddings(
+                model_name="sentence-transformers/all-MiniLM-L6-v2"
+            )
+        except Exception as e:
+            print(
+                f"Failed to initialize embeddings (Attempt {attempt+1}/{retries}): {e}"
+            )
+            sleep(5)  # Wait before retrying
+    raise RuntimeError("Failed to initialize embeddings after multiple attempts.")

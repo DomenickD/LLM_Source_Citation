@@ -59,36 +59,90 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 #     return documents
 
 
+# def load_and_split_documents(data_folder, chunk_size=500, chunk_overlap=100):
+#     """
+#     Load and split text and PDF documents from a folder into manageable chunks.
+
+#     Args:
+#         data_folder (str): The path to the folder containing documents.
+#         chunk_size (int, optional): The size of each text chunk. Defaults to 500.
+#         chunk_overlap (int, optional): The overlap between consecutive chunks. Defaults to 100.
+
+#     Returns:
+#         list: A list of document chunks, where each chunk is a dictionary containing the content and metadata.
+#     """
+#     documents = []
+#     text_splitter = RecursiveCharacterTextSplitter(
+#         chunk_size=chunk_size, chunk_overlap=chunk_overlap
+#     )
+
+#     # Walk through all subdirectories
+#     for root, _, files in os.walk(data_folder):
+#         for filename in files:
+#             file_path = os.path.join(root, filename)
+#             if filename.endswith(".txt"):
+#                 loader = DirectoryLoader(root, glob=filename)
+#                 documents.extend(loader.load_and_split(text_splitter=text_splitter))
+#             elif filename.endswith(".pdf"):
+#                 pdf_loader = PyMuPDFLoader(file_path)
+#                 pdf_documents = pdf_loader.load_and_split(text_splitter=text_splitter)
+#                 for doc in pdf_documents:
+#                     doc.metadata["source"] = filename
+#                 documents.extend(pdf_documents)
+#     return documents
+
+
+from langchain.schema import Document
+from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain_community.document_loaders import PyMuPDFLoader
+
+
 def load_and_split_documents(data_folder, chunk_size=500, chunk_overlap=100):
-    """
-    Load and split text and PDF documents from a folder into manageable chunks.
-
-    Args:
-        data_folder (str): The path to the folder containing documents.
-        chunk_size (int, optional): The size of each text chunk. Defaults to 500.
-        chunk_overlap (int, optional): The overlap between consecutive chunks. Defaults to 100.
-
-    Returns:
-        list: A list of document chunks, where each chunk is a dictionary containing the content and metadata.
-    """
     documents = []
     text_splitter = RecursiveCharacterTextSplitter(
         chunk_size=chunk_size, chunk_overlap=chunk_overlap
     )
 
-    # Walk through all subdirectories
+    print(f"Loading documents from folder: {data_folder}")
+
     for root, _, files in os.walk(data_folder):
         for filename in files:
             file_path = os.path.join(root, filename)
-            if filename.endswith(".txt"):
-                loader = DirectoryLoader(root, glob=filename)
-                documents.extend(loader.load_and_split(text_splitter=text_splitter))
-            elif filename.endswith(".pdf"):
-                pdf_loader = PyMuPDFLoader(file_path)
-                pdf_documents = pdf_loader.load_and_split(text_splitter=text_splitter)
-                for doc in pdf_documents:
-                    doc.metadata["source"] = filename
-                documents.extend(pdf_documents)
+            try:
+                print(f"Processing file: {filename}")
+
+                if filename.endswith(".txt"):
+                    # Load and split TXT files
+                    with open(file_path, "r", encoding="utf-8") as file:
+                        content = file.read()
+                    if not content.strip():
+                        print(f"Skipping {filename}: File is empty.")
+                        continue
+                    chunks = text_splitter.split_text(content)
+                elif filename.endswith(".pdf"):
+                    # Load and split PDF files
+                    pdf_loader = PyMuPDFLoader(file_path)
+                    chunks = pdf_loader.load_and_split(text_splitter=text_splitter)
+                else:
+                    print(f"Skipping unsupported file type: {filename}")
+                    continue
+
+                if not chunks:
+                    print(f"Skipping {filename}: No valid chunks extracted.")
+                    continue
+
+                # Wrap each chunk in a Document object with metadata
+                for chunk in chunks:
+                    doc = Document(page_content=chunk, metadata={"source": filename})
+                    documents.append(doc)
+
+                print(f"Processed {len(chunks)} chunks from {filename}.")
+
+            except Exception as e:
+                print(f"Error processing {filename}: {e}")
+
+    if not documents:
+        print("No valid documents found in the folder.")
     return documents
 
 
@@ -142,3 +196,13 @@ def get_keywords_from_data_folder(data_folder="./data"):
             base_name = os.path.splitext(filename)[0]
             keywords.append(base_name.lower())
     return keywords
+
+
+if __name__ == "__main__":
+    data_folder = "./data"
+    documents = load_and_split_documents(data_folder)
+
+    if not documents:
+        print("No valid documents processed.")
+    else:
+        print(f"Successfully processed {len(documents)} chunks.")

@@ -23,6 +23,7 @@ from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
 from langchain_core.prompts import ChatPromptTemplate
 from document_processor import get_context_for_question
 from utils import scrape_webpage
+from document_uploader import upload_and_vectorize
 
 
 def initialize_ui():
@@ -35,45 +36,54 @@ def initialize_ui():
     st.title("RAG-Powered Document Query Chatbot")
     st.write("Ask questions about the content in the text files in the 'data' folder.")
 
-    # Sidebar: Model Settings
-    st.sidebar.header("Model Settings")
-    temperature = st.sidebar.slider(
-        "Set model temperature", min_value=0.0, max_value=1.0, value=0.2, step=0.1
-    )
+    st.sidebar.header("Additional Features")
 
-    # Sidebar: Web Scraping Form
-    st.sidebar.header("Scrape a Website")
-    with st.sidebar.form(key="scrape_form"):
-        url_to_scrape = st.text_input("Enter a website URL:")
-        scrape_button = st.form_submit_button("Scrape Website")
+    # Sidebar: Model Settings Expander
+    with st.sidebar.expander("Model Settings", expanded=False):
+        temperature = st.slider(
+            "Set model temperature", min_value=0.0, max_value=1.0, value=0.2, step=0.1
+        )
 
-    # Placeholder for dynamic message display
-    message_placeholder = st.sidebar.empty()
+    # Sidebar: Web Scraping Expander
+    with st.sidebar.expander("Scrape a Website", expanded=False):
+        with st.form(key="scrape_form"):
+            url_to_scrape = st.text_input("Enter a website URL:")
+            scrape_button = st.form_submit_button("Scrape Website")
 
-    # Handle web scraping
-    if scrape_button and url_to_scrape:
-        try:
-            scraped_file = scrape_webpage(url_to_scrape, output_folder="./data")
-            st.session_state.scrape_message = (
-                f"Scraped content saved as: {scraped_file}"
-            )
-        except requests.exceptions.RequestException as e:
-            st.session_state.scrape_message = f"Network error: {e}"
-        except ValueError as e:
-            st.session_state.scrape_message = f"Data parsing error: {e}"
+        # Placeholder for dynamic message display
+        upload_placeholder = st.empty()
 
-        # Display the message and implement the countdown
-        start_time = time.time()
-        while time.time() - start_time < 5:
-            remaining_time = int(5 - (time.time() - start_time))
-            message_placeholder.info(
-                f"{st.session_state.scrape_message} (Closing in {remaining_time}s)"
-            )
-            time.sleep(1)  # Update every second
+        # Handle web scraping
+        if scrape_button and url_to_scrape:
+            try:
+                scraped_file = scrape_webpage(
+                    url_to_scrape,
+                    upload_placeholder=upload_placeholder,
+                    output_folder="./data",
+                )
+                st.session_state.scrape_message = (
+                    f"Scraped content saved as: {scraped_file}"
+                )
+            except requests.exceptions.RequestException as e:
+                st.session_state.scrape_message = f"Network error: {e}"
+            except ValueError as e:
+                st.session_state.scrape_message = f"Data parsing error: {e}"
 
-        # Clear the message after 5 seconds
-        message_placeholder.empty()
-        del st.session_state.scrape_message
+            # Display the message and implement the countdown
+            start_time = time.time()
+            while time.time() - start_time < 5:
+                remaining_time = int(5 - (time.time() - start_time))
+                upload_placeholder.info(
+                    f"{st.session_state.scrape_message} (Closing in {remaining_time}s)"
+                )
+                time.sleep(1)  # Update every second
+
+            # Clear the message after 5 seconds
+            upload_placeholder.empty()
+            del st.session_state.scrape_message
+
+    # Sidebar: Document Upload
+    upload_and_vectorize()
 
     return temperature
 

@@ -15,7 +15,7 @@ Run this script to generate and save a vector store based on the documents in th
 `python train_model.py`
 """
 
-from vector_store import create_and_save_vector_store
+from shared_utils import create_and_save_vector_store
 from embeddings import get_embeddings
 from document_processor import load_and_split_documents
 

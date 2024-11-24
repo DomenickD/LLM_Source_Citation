@@ -18,17 +18,71 @@ import os
 import requests
 from bs4 import BeautifulSoup
 from datetime import datetime
-from vector_store import create_and_save_vector_store
-from document_processor import load_and_split_documents
-from embeddings import get_embeddings
+
+# from vector_store import create_and_save_vector_store
+# from document_processor import load_and_split_documents
+# from embeddings import get_embeddings
+from vector_store import process_vector_store
 
 
-def scrape_webpage(url, output_folder="./data"):
+# def scrape_webpage(url, output_folder="./data"):
+#     """
+#     Scrape text content from a webpage and save it as a text file.
+
+#     Args:
+#         url (str): The URL of the webpage to scrape.
+#         output_folder (str, optional): The folder where the text file will be saved.
+#                                        Defaults to "./data".
+
+#     Returns:
+#         str: The path to the saved text file.
+
+#     Raises:
+#         requests.exceptions.RequestException: If the HTTP request fails.
+#     """
+#     # Send a GET request to the provided URL
+#     response = requests.get(url, timeout=15)
+#     response.raise_for_status()  # Raise an error for HTTP request issues
+
+#     # Parse the HTML content of the webpage
+#     soup = BeautifulSoup(response.content, "html.parser")
+
+#     # Extract text content from all <p> tags
+#     text_content = " ".join([p.get_text() for p in soup.find_all("p")])
+
+#     # Create a safe and descriptive filename based on the URL
+#     sanitized_url = url.replace("http://", "").replace("https://", "").replace("/", "_")
+#     base_name = sanitized_url.split("?")[0].split("#")[
+#         0
+#     ]  # Remove query strings and fragments
+#     filename = os.path.join(output_folder, f"{base_name}.txt")
+
+#     # Ensure the output folder exists
+#     os.makedirs(output_folder, exist_ok=True)
+
+#     # Write the extracted text content to the file
+#     with open(filename, "w", encoding="utf-8") as file:
+#         file.write(text_content)
+
+#     print(f"Webpage content saved to {filename}")
+
+#     # Update vector store with the new document
+#     print("Updating the vector store...")
+#     documents = load_and_split_documents(output_folder)
+#     embeddings = get_embeddings()
+#     create_and_save_vector_store(documents, embeddings)
+#     print("Vector store updated successfully!")
+
+#     return filename
+
+
+def scrape_webpage(url, upload_placeholder, output_folder="./data"):
     """
-    Scrape text content from a webpage and save it as a text file.
+    Scrape text content from a webpage, save it as a text file, and update the vector store.
 
     Args:
         url (str): The URL of the webpage to scrape.
+        upload_placeholder (streamlit.empty): The Streamlit placeholder for displaying updates.
         output_folder (str, optional): The folder where the text file will be saved.
                                        Defaults to "./data".
 
@@ -38,40 +92,45 @@ def scrape_webpage(url, output_folder="./data"):
     Raises:
         requests.exceptions.RequestException: If the HTTP request fails.
     """
-    # Send a GET request to the provided URL
-    response = requests.get(url, timeout=15)
-    response.raise_for_status()  # Raise an error for HTTP request issues
+    try:
+        # Step 1: Send a GET request to the provided URL
+        upload_placeholder.info("Fetching webpage content...")
+        response = requests.get(url, timeout=15)
+        response.raise_for_status()  # Raise an error for HTTP request issues
 
-    # Parse the HTML content of the webpage
-    soup = BeautifulSoup(response.content, "html.parser")
+        # Step 2: Parse the HTML content of the webpage
+        soup = BeautifulSoup(response.content, "html.parser")
+        text_content = " ".join([p.get_text() for p in soup.find_all("p")])
 
-    # Extract text content from all <p> tags
-    text_content = " ".join([p.get_text() for p in soup.find_all("p")])
+        # Step 3: Create a safe and descriptive filename
+        sanitized_url = (
+            url.replace("http://", "").replace("https://", "").replace("/", "_")
+        )
+        base_name = sanitized_url.split("?")[0].split("#")[
+            0
+        ]  # Remove query strings and fragments
+        filename = os.path.join(output_folder, f"{base_name}.txt")
 
-    # Create a safe and descriptive filename based on the URL
-    sanitized_url = url.replace("http://", "").replace("https://", "").replace("/", "_")
-    base_name = sanitized_url.split("?")[0].split("#")[
-        0
-    ]  # Remove query strings and fragments
-    filename = os.path.join(output_folder, f"{base_name}.txt")
+        # Step 4: Ensure the output folder exists
+        os.makedirs(output_folder, exist_ok=True)
 
-    # Ensure the output folder exists
-    os.makedirs(output_folder, exist_ok=True)
+        # Step 5: Write the extracted text content to the file
+        with open(filename, "w", encoding="utf-8") as file:
+            file.write(text_content)
 
-    # Write the extracted text content to the file
-    with open(filename, "w", encoding="utf-8") as file:
-        file.write(text_content)
+        upload_placeholder.success(f"Webpage content saved to: {filename}")
 
-    print(f"Webpage content saved to {filename}")
+        # Step 6: Update the vector store using the reusable function
+        process_vector_store(upload_placeholder)
 
-    # Update vector store with the new document
-    print("Updating the vector store...")
-    documents = load_and_split_documents(output_folder)
-    embeddings = get_embeddings()
-    create_and_save_vector_store(documents, embeddings)
-    print("Vector store updated successfully!")
+        return filename
 
-    return filename
+    except requests.exceptions.RequestException as e:
+        upload_placeholder.error(f"Failed to fetch webpage: {e}")
+        raise
+    except Exception as e:
+        upload_placeholder.error(f"An error occurred: {e}")
+        raise
 
 
 def format_apa_citation(url):
@@ -89,11 +148,3 @@ def format_apa_citation(url):
 
     # Format and return the citation
     return f"{url}. Retrieved {now.strftime('%Y, %B %d')}."
-
-
-# Example usage (optional for standalone testing)
-if __name__ == "__main__":
-    example_url = "https://example.com"
-    output_file = scrape_webpage(example_url)
-    citation = format_apa_citation(example_url)
-    print("APA Citation:", citation)
