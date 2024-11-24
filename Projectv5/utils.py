@@ -15,65 +15,10 @@ Use `format_apa_citation` to generate a formatted citation for the scraped webpa
 """
 
 import os
+from datetime import datetime
 import requests
 from bs4 import BeautifulSoup
-from datetime import datetime
-
-# from vector_store import create_and_save_vector_store
-# from document_processor import load_and_split_documents
-# from embeddings import get_embeddings
 from vector_store import process_vector_store
-
-
-# def scrape_webpage(url, output_folder="./data"):
-#     """
-#     Scrape text content from a webpage and save it as a text file.
-
-#     Args:
-#         url (str): The URL of the webpage to scrape.
-#         output_folder (str, optional): The folder where the text file will be saved.
-#                                        Defaults to "./data".
-
-#     Returns:
-#         str: The path to the saved text file.
-
-#     Raises:
-#         requests.exceptions.RequestException: If the HTTP request fails.
-#     """
-#     # Send a GET request to the provided URL
-#     response = requests.get(url, timeout=15)
-#     response.raise_for_status()  # Raise an error for HTTP request issues
-
-#     # Parse the HTML content of the webpage
-#     soup = BeautifulSoup(response.content, "html.parser")
-
-#     # Extract text content from all <p> tags
-#     text_content = " ".join([p.get_text() for p in soup.find_all("p")])
-
-#     # Create a safe and descriptive filename based on the URL
-#     sanitized_url = url.replace("http://", "").replace("https://", "").replace("/", "_")
-#     base_name = sanitized_url.split("?")[0].split("#")[
-#         0
-#     ]  # Remove query strings and fragments
-#     filename = os.path.join(output_folder, f"{base_name}.txt")
-
-#     # Ensure the output folder exists
-#     os.makedirs(output_folder, exist_ok=True)
-
-#     # Write the extracted text content to the file
-#     with open(filename, "w", encoding="utf-8") as file:
-#         file.write(text_content)
-
-#     print(f"Webpage content saved to {filename}")
-
-#     # Update vector store with the new document
-#     print("Updating the vector store...")
-#     documents = load_and_split_documents(output_folder)
-#     embeddings = get_embeddings()
-#     create_and_save_vector_store(documents, embeddings)
-#     print("Vector store updated successfully!")
-
-#     return filename
 
 
 def scrape_webpage(url, upload_placeholder, output_folder="./data"):

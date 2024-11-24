@@ -1,4 +1,7 @@
-# shared_utils.py
+"""This file houses the creating and saving 
+of the vectorstore to avoid circluar imports.
+"""
+
 import os
 import pickle
 from langchain_community.vectorstores import FAISS

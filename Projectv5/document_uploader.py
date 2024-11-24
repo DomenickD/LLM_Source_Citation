@@ -1,3 +1,7 @@
+"""
+This file will handle the loading of new documents from the sidebar.
+"""
+
 import os
 import shutil
 import streamlit as st
@@ -35,5 +39,5 @@ def upload_and_vectorize():
 
                 process_vector_store(upload_placeholder)
 
-            except Exception as e:
-                upload_placeholder.error(f"An error occurred: {e}")
+            except FileNotFoundError as e:
+                upload_placeholder.error(f"File not found: {e}")
