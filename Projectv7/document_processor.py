@@ -21,7 +21,7 @@ These functions are intended to be part of a larger document processing and quer
 """
 
 import os
-from langchain_community.document_loaders import PyMuPDFLoader
+from langchain.document_loaders import PyMuPDFLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.schema import Document
 
