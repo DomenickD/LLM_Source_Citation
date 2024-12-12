@@ -83,7 +83,7 @@ def load_local_vector_store():
         print("Vector store not found. Running train_model.py to create it.")
         try:
             # Run the train_model.py script
-            subprocess.run(["python", "train_model.py"], check=True)
+            subprocess.run(["python", "Projectv7/train_model.py"], check=True)
         except subprocess.CalledProcessError as e:
             raise RuntimeError(
                 "Failed to train the model and create the vector store."
