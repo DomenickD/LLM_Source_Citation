@@ -86,6 +86,7 @@ def load_and_split_documents(input_folder: str, chunk_size=500, chunk_overlap=10
     return documents_list
 
 
+# This works - commented to try new things
 def get_context_for_question(vector_store, question, k=5):
     """
     Retrieve relevant context and source information for a given question using a vector store.
@@ -104,6 +105,36 @@ def get_context_for_question(vector_store, question, k=5):
     context = "\n\n".join([doc.page_content for doc in docs])
     source_info = ", ".join(set(doc.metadata["source"] for doc in docs))
     return context, source_info
+
+
+# def get_context_for_question(vector_store, question, k=5):
+#     """
+#     Retrieve context for a question from the vector store.
+#     Args:
+#         vector_store: The vector store object.
+#         question (str): The user's question.
+#         k (int): Number of top results to retrieve.
+
+#     Returns:
+#         str: Retrieved context.
+#         dict: Metadata about the context source.
+#     """
+#     results = vector_store.similarity_search(question, k=k)
+#     contexts = []
+#     sources = []
+
+#     for result in results:
+#         context = result["text"]
+#         metadata = result[
+#             "metadata"
+#         ]  # Assuming metadata contains file name and position
+#         contexts.append(context)
+#         sources.append(f"{metadata['file_name']} (Line {metadata['line_number']})")
+
+#     combined_context = "\n\n".join(contexts)
+#     source_info = "; ".join(sources)
+
+#     return combined_context, source_info
 
 
 def is_document_related(query):
@@ -136,13 +167,3 @@ def get_keywords_from_data_folder(folder="./data"):
             base_name = os.path.splitext(filename)[0]
             keywords.append(base_name.lower())
     return keywords
-
-
-# if __name__ == "__main__":
-#     data_folder = "./data"
-#     documents = load_and_split_documents(data_folder)
-
-#     if not documents:
-#         print("No valid documents processed.")
-#     else:
-#         print(f"Successfully processed {len(documents)} chunks.")

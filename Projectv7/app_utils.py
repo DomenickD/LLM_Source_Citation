@@ -19,9 +19,10 @@ engage in general conversation with the chatbot.
 import time
 import requests
 import streamlit as st
-from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
+
+# from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
 from langchain_core.prompts import ChatPromptTemplate
-from document_processor import get_context_for_question
+from document_processor import get_context_for_question, is_document_related
 from utils import scrape_webpage
 
 # from lda_utils import perform_lda
@@ -107,7 +108,7 @@ def initialize_model():
     return ChatOllama(model="llama3.1", temperature=0.2)
 
 
-def handle_user_input(llm, vector_store, keywords):
+def handle_user_input(llm, vector_store):
     """
     Handle user input and generate responses based on queries.
 
@@ -120,40 +121,28 @@ def handle_user_input(llm, vector_store, keywords):
         Updates the session state with user and bot messages.
         Displays responses in the Streamlit app.
     """
-    # lda_topics = perform_lda()
-
-    if "message_history" not in st.session_state:
-        st.session_state.message_history = [
-            SystemMessage(
-                content="You are a helpful assistant answering questions based on text files."
-            )
+    if "messages" not in st.session_state:
+        st.session_state.messages = [
+            {"role": "system", "content": "You are a helpful assistant."}
         ]
 
-    # Display the message history
-    for msg in st.session_state.message_history:
-        if isinstance(msg, HumanMessage):
-            st.write(f"**User:** {msg.content}")
-        elif isinstance(msg, AIMessage):
-            st.write(f"**Bot:** {msg.content}")
+    # Display chat history
+    for message in st.session_state.messages:
+        if message["role"] != "system":
+            with st.chat_message(message["role"]):
+                st.markdown(message["content"])
 
-    # Input form
-    with st.form(key="input_form", clear_on_submit=True):
-        user_question = st.text_input(
-            "Ask a question about the content in the text files:"
-        )
-        submit_button = st.form_submit_button("Submit")
+    # User input
+    if prompt := st.chat_input("Ask a question about the documents or anything else"):
+        st.session_state.messages.append({"role": "user", "content": prompt})
+        with st.chat_message("user"):
+            st.markdown(prompt)
 
-    if submit_button and user_question:
-        st.session_state.message_history.append(HumanMessage(content=user_question))
+        if is_document_related(prompt):
+            context, source_info = get_context_for_question(vector_store, prompt, k=5)
 
-        if "tell me about" in user_question.lower() or any(
-            keyword in user_question.lower() for keyword in keywords
-        ):
-            # Generate a response using document context
-            context, source_info = get_context_for_question(
-                vector_store, user_question, k=5
-            )
-            prompt = ChatPromptTemplate.from_messages(
+            # Use context in the LLM prompt
+            prompt_template = ChatPromptTemplate.from_messages(
                 [
                     (
                         "system",
@@ -163,18 +152,102 @@ def handle_user_input(llm, vector_store, keywords):
                         "human",
                         f"Use the following context to answer the question: '{context}'",
                     ),
-                    ("human", user_question),
+                    ("human", prompt),
                 ]
             )
-            chain = prompt | llm
-            ai_response = chain.invoke({"context": context, "question": user_question})
-            final_response = f"{ai_response.content} \n\n*Source: {source_info}*"
-        else:
-            # General conversational response
-            final_response = handle_conversational_response(llm, user_question)
+            chain = prompt_template | llm
+            ai_response = chain.invoke({"context": context, "question": prompt})
+            response = f"{ai_response.content}\n\n*Source file: {source_info}*"
+            # Display assistant response
+            with st.chat_message("assistant"):
+                st.markdown(response)
 
-        st.session_state.message_history.append(AIMessage(content=final_response))
-        st.write(f"**Bot:** {final_response}")
+            # Display context in a pop-up window BELOW the response
+            with st.expander("View Context Used for Response", expanded=False):
+                st.markdown(f"### Context:\n{context}")
+
+        else:
+            response = handle_conversational_response(llm, prompt)
+
+            # Display assistant response
+            with st.chat_message("assistant"):
+                st.markdown(response)
+
+        st.session_state.messages.append({"role": "assistant", "content": response})
+
+
+# def handle_user_input(llm, vector_store, keywords):
+#     """
+#     Handle user input and generate responses based on queries.
+
+#     Args:
+#         llm (ChatOllama): The language model instance.
+#         vector_store (VectorStore): The vector store for document-based queries.
+#         keywords (list): A list of keywords from the document data folder.
+
+#     Side Effects:
+#         Updates the session state with user and bot messages.
+#         Displays responses in the Streamlit app.
+#     """
+#     # lda_topics = perform_lda()
+
+#     if "message_history" not in st.session_state:
+#         st.session_state.message_history = [
+#             SystemMessage(
+#                 content="You are a helpful assistant answering questions based on text files."
+#             )
+#         ]
+
+#     # Display the message history
+#     for msg in st.session_state.message_history:
+#         if isinstance(msg, HumanMessage):
+#             st.write(f"**User:** {msg.content}")
+#         elif isinstance(msg, AIMessage):
+#             st.write(f"**Bot:** {msg.content}")
+
+#     # Input form
+#     with st.form(key="input_form", clear_on_submit=True):
+#         user_question = st.text_input(
+#             "Ask a question about the content in the text files:"
+#         )
+#         submit_button = st.form_submit_button("Submit")
+
+#     if submit_button and user_question:
+#         st.session_state.message_history.append(HumanMessage(content=user_question))
+
+#         if "tell me about" in user_question.lower() or any(
+#             keyword in user_question.lower() for keyword in keywords
+#         ):
+#             # Generate a response using document context
+#             context, source_info = get_context_for_question(
+#                 vector_store, user_question, k=5
+#             )
+
+#             # Splice or trim the context to a manageable size
+#             max_words = 100  # Limit to 100 words
+#             spliced_context = " ".join(context.split()[:max_words])
+#             prompt = ChatPromptTemplate.from_messages(
+#                 [
+#                     (
+#                         "system",
+#                         "You are a helpful assistant answering questions based on these documents.",
+#                     ),
+#                     (
+#                         "human",
+#                         f"Use the following context to answer the question: '{context}'",
+#                     ),
+#                     ("human", user_question),
+#                 ]
+#             )
+#             chain = prompt | llm
+#             ai_response = chain.invoke({"context": context, "question": user_question})
+#             final_response = f"{ai_response.content} \n\n*Source: {source_info}*"
+#         else:
+#             # General conversational response
+#             final_response = handle_conversational_response(llm, user_question)
+
+#         st.session_state.message_history.append(AIMessage(content=final_response))
+#         st.write(f"""**Bot:** {final_response}""")
 
 
 def handle_conversational_response(llm, user_question):

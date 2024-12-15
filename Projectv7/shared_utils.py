@@ -4,7 +4,7 @@ of the vectorstore to avoid circluar imports.
 
 import os
 import pickle
-from langchain.vectorstores import FAISS
+from langchain_community.vectorstores import FAISS
 
 VECTOR_STORE_PATH = "./vectorstore/faiss_index.pkl"
 
