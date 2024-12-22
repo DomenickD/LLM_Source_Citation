@@ -36,7 +36,7 @@ def initialize_model():
     """
     from langchain_ollama import ChatOllama
 
-    return ChatOllama(model="llama3.1", temperature=0.2)
+    return ChatOllama(model="llama3.2", temperature=0.2)
 
 
 def handle_user_input(llm, vector_store):
@@ -54,7 +54,14 @@ def handle_user_input(llm, vector_store):
     """
     if "messages" not in st.session_state:
         st.session_state.messages = [
-            {"role": "system", "content": "You are a helpful assistant."}
+            {
+                "role": "system",
+                "content": "You are a helpful assistant. \
+             You are focused on retrieval-augmented generation (RAG) and \
+             answering questions based on the context given. \
+             That being said, If the question asked doesn't make sense \
+             in terms of the context, answer it from beyond the context given to you.",
+            }
         ]
 
     # Display chat history
@@ -77,11 +84,13 @@ def handle_user_input(llm, vector_store):
                 [
                     (
                         "system",
-                        "You are a helpful assistant answering questions based on these documents.",
+                        "You are a helpful assistant answering questions based on the given context.\
+                            Use your knowledge to provide accurate and relevant answers, sticking\
+                            to the source material if possible.",
                     ),
                     (
                         "human",
-                        f"Use the following context to answer the question: '{context}'",
+                        f"If appropriate: Use the following context to answer the question: '{context}'",
                     ),
                     ("human", prompt),
                 ]

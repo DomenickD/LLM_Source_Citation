@@ -117,7 +117,8 @@ def is_document_related(query):
     Returns:
         bool: True if the query contains keywords suggesting document-related intent, otherwise False.
     """
-    keywords = ["tell me about", "who", "what", "when", "where", "describe", "explain"]
+    # keywords = ["tell me about", "who", "what", "when", "where", "describe", "explain"]
+    keywords = ["tell", "me" "about"]
     return any(keyword in query.lower() for keyword in keywords)
 
 

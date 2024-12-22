@@ -1,18 +1,14 @@
-"""Define the hoem page"""
+"""Define the home page"""
 
 import streamlit as st
-
-# from document_processor import get_keywords_from_data_folder
 from app_utils import handle_user_input, initialize_model
 from vector_store import load_local_vector_store
-
-# from lda_utils import perform_lda
 
 
 def home_page():
     """Home page to render"""
     st.title("RAG-Powered Document Query Chatbot")
-    st.write("Ask questions about the content in the text files in the 'data' folder.")
+    st.caption("Powered by the Ollama Language Model (v3.2)")
 
     # Initialize vector store
     vector_store = load_local_vector_store()
@@ -22,7 +18,8 @@ def home_page():
 
     # Inform the user about keyword-based queries
     st.write(
-        """To query files, use "tell me about" or the name of the file in your prompt."""
+        """To query files, use "tell me about" somewhere in the prompt.\
+            This tells the LLM that you want to use RAG and not just chat."""
     )
 
     # Handle user input and responses

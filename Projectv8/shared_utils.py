@@ -54,10 +54,6 @@ def display_readme(readme_path: str, img_folder_path: str):
         img_folder_path (str): Path to the folder containing images.
     """
     try:
-        # Debug: Log the current working directory
-        st.write(f"Current working directory: {os.getcwd()}")
-        st.write(f"Looking for README at: {readme_path}")
-
         # Open the README file
         with open(readme_path, "r", encoding="utf-8") as f:
             readme_line = f.readlines()
