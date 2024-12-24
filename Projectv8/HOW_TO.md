@@ -3,7 +3,7 @@
 1. **Install Python (version 3.10 or newer)**  
    - Go to [python.org](https://www.python.org/downloads) and download the latest Python 3.x installer for Windows.  
    - Run the installer. On the first setup screen, make sure to check the box **"Add Python to PATH"** so that your computer can run Python from the Command Prompt.
-   - Adding something to the path can be confusing, but if you're on Windows, follow these steps:  
+   -If you're on Windows, follow these steps:  
      
      1. Type `env` in the search bar.  
      2. Click on **Edit the system environment variables**.  
@@ -48,7 +48,6 @@
      ```bash
      streamlit run app.py
      ```
-     (Replace `app.py` with the actual name of your main Streamlit file if it's something else like `main.py`.)  
    - This will launch a local server and automatically open your default web browser to show the Streamlit app at an address like:  
      `http://localhost:8501`.
 

@@ -57,10 +57,6 @@ def process_vector_store(upload_placeholder):
     st.write("### Files in the Data Folder")
     st.table(file_df)  # Display the table
 
-    # Step 3(working)
-    # file_list = "\n\n".join(data_files)
-    # upload_placeholder.info(f"Starting vectorization process on:\n\n{file_list}")
-
     # Step 3: Train the new vector store
     upload_placeholder.info("Starting vectorization process...")
     train_vector_store()

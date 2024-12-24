@@ -24,45 +24,95 @@ import os
 from langchain_community.document_loaders import PyMuPDFLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.schema import Document
+from docx import Document as DocxDocument
+
+
+# def load_and_split_documents(input_folder: str, chunk_size=500, chunk_overlap=100):
+#     """
+#     Load and split text and PDF documents from a folder into manageable chunks.
+
+#     Args:
+#         data_folder (str): The path to the folder containing documents.
+#         chunk_size (int, optional): The size of each text chunk. Defaults to 500.
+#         chunk_overlap (int, optional): The overlap between consecutive chunks. Defaults to 100.
+
+#     Returns:
+#         list: A list of Document objects, each containing the content and metadata of a chunk.
+#     """
+#     documents_list = []
+#     text_splitter = RecursiveCharacterTextSplitter(
+#         chunk_size=chunk_size, chunk_overlap=chunk_overlap
+#     )
+
+#     print(f"Loading documents from folder: {input_folder}")
+
+#     for root, _, files in os.walk(input_folder):
+#         for filename in files:
+#             file_path = os.path.join(root, filename)
+#             try:
+#                 print(f"Processing file: {filename}")
+
+#                 if filename.endswith(".txt"):
+#                     # Load and split TXT files
+#                     with open(file_path, "r", encoding="utf-8") as file:
+#                         content = file.read()
+#                     if not content.strip():
+#                         print(f"Skipping {filename}: File is empty.")
+#                         continue
+#                     chunks = text_splitter.split_text(content)
+#                 elif filename.endswith(".pdf"):
+#                     # Load and split PDF files
+#                     pdf_loader = PyMuPDFLoader(file_path)
+#                     chunks = pdf_loader.load_and_split(text_splitter=text_splitter)
+#                 else:
+#                     print(f"Skipping unsupported file type: {filename}")
+#                     continue
+
+#                 if not chunks:
+#                     print(f"Skipping {filename}: No valid chunks extracted.")
+#                     continue
+
+#                 # Wrap each chunk in a Document object with metadata
+#                 for chunk in chunks:
+#                     doc = Document(page_content=chunk, metadata={"source": filename})
+#                     documents_list.append(doc)
+
+#                 print(f"Processed {len(chunks)} chunks from {filename}.")
+
+#             except FileNotFoundError as e:
+#                 print(f"Error processing {filename}: {e}")
+
+#     if not documents_list:
+#         print("No valid documents found in the folder.")
+#     return documents_list
 
 
 def load_and_split_documents(input_folder: str, chunk_size=500, chunk_overlap=100):
     """
-    Load and split text and PDF documents from a folder into manageable chunks.
-
-    Args:
-        data_folder (str): The path to the folder containing documents.
-        chunk_size (int, optional): The size of each text chunk. Defaults to 500.
-        chunk_overlap (int, optional): The overlap between consecutive chunks. Defaults to 100.
-
-    Returns:
-        list: A list of Document objects, each containing the content and metadata of a chunk.
+    Load and split text, DOCX, and PDF documents from a folder into manageable chunks.
     """
     documents_list = []
     text_splitter = RecursiveCharacterTextSplitter(
         chunk_size=chunk_size, chunk_overlap=chunk_overlap
     )
 
-    print(f"Loading documents from folder: {input_folder}")
-
     for root, _, files in os.walk(input_folder):
         for filename in files:
             file_path = os.path.join(root, filename)
             try:
-                print(f"Processing file: {filename}")
-
                 if filename.endswith(".txt"):
-                    # Load and split TXT files
                     with open(file_path, "r", encoding="utf-8") as file:
                         content = file.read()
-                    if not content.strip():
-                        print(f"Skipping {filename}: File is empty.")
-                        continue
                     chunks = text_splitter.split_text(content)
                 elif filename.endswith(".pdf"):
-                    # Load and split PDF files
                     pdf_loader = PyMuPDFLoader(file_path)
                     chunks = pdf_loader.load_and_split(text_splitter=text_splitter)
+                elif filename.endswith(".docx"):
+                    docx_document = DocxDocument(file_path)
+                    content = "\n".join(
+                        [paragraph.text for paragraph in docx_document.paragraphs]
+                    )
+                    chunks = text_splitter.split_text(content)
                 else:
                     print(f"Skipping unsupported file type: {filename}")
                     continue
@@ -71,18 +121,13 @@ def load_and_split_documents(input_folder: str, chunk_size=500, chunk_overlap=10
                     print(f"Skipping {filename}: No valid chunks extracted.")
                     continue
 
-                # Wrap each chunk in a Document object with metadata
                 for chunk in chunks:
                     doc = Document(page_content=chunk, metadata={"source": filename})
                     documents_list.append(doc)
 
-                print(f"Processed {len(chunks)} chunks from {filename}.")
-
             except FileNotFoundError as e:
                 print(f"Error processing {filename}: {e}")
 
-    if not documents_list:
-        print("No valid documents found in the folder.")
     return documents_list
 
 
