@@ -13,3 +13,6 @@ gensim
 numpy 
 pandas 
 nltk
+python-docx 
+PyPDF2 
+pdfplumber
