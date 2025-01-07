@@ -32,6 +32,15 @@ This section showcases the step-by-step functionality of the LLM through individ
 ![Screenshot 7](Pictures/llm_7.png)
 ![Screenshot 8](Pictures/llm_8.png)
 
+## How to this from scratch
+
+Open Command line terminal (Windows key then "cmd". Then "enter" key)
+
+- In the command line, type: `chmod +x start.sh`
+
+- Type `./start.sh`
+
+It will start to download and check system requirments in order to run the app. 
 
 ### How to Run This App on Your Own Computer
 
